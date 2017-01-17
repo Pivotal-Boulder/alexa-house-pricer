@@ -1,0 +1,26 @@
+{
+  "intents": [
+    {
+      "intent": "MyZipCodeIsIntent",
+      "slots": [
+        {
+          "name": "Zip",
+          "type": "AMAZON.NUMBER"
+        }
+      ]
+    },
+    {
+      "intent": "MyAddressIsIntent",
+      "slots": [
+        {
+          "name": "Address",
+          "type": "AMAZON.PostalAddress"
+        }
+      ]
+    },
+    {
+      "intent": "WelcomeIntent",
+      "slots": []
+    }
+  ]
+}

@@ -1,0 +1,10 @@
+MyZipCodeIsIntent my zip code is {Zip}
+MyZipCodeIsIntent my zip is {Zip}
+MyAddressIsIntent my address is {Address}
+MyAddressIsIntent my street address is {Address}
+MyAddressIsIntent my postal address is {Address}
+MyAddressIsIntent my street number is {Address}
+WelcomeIntent how much my house is worth
+WelcomeIntent what is the value of my house
+WelcomeIntent for how much my house is worth
+WelcomeIntent for the value of my house
