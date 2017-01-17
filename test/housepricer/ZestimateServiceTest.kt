@@ -1,17 +1,12 @@
-package session
+package housepricer
 
-import com.amazon.speech.slu.Intent
-import com.amazon.speech.speechlet.*
-import com.amazon.speech.ui.PlainTextOutputSpeech
 import com.nhaarman.mockito_kotlin.anyOrNull
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.reset
 import com.nhaarman.mockito_kotlin.whenever
 import io.damo.aspen.Test
 import okhttp3.*
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
-import java.util.*
 
 
 class ZestimateServiceTest : Test({

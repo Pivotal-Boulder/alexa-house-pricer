@@ -1,4 +1,4 @@
-package session
+package housepricer
 
 import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
@@ -10,10 +10,10 @@ import javax.xml.xpath.XPathConstants
 import javax.xml.xpath.XPathFactory
 
 
-open class ZestimateService(val client : OkHttpClient, val env : EnvService) {
+open class ZestimateService(val client: OkHttpClient, val env: EnvService) {
 
-    open fun fetch(address: String, zip: String) : Int? {
-        val url : HttpUrl = HttpUrl.Builder()
+    open fun fetch(address: String, zip: String): Int? {
+        val url: HttpUrl = HttpUrl.Builder()
                 .scheme("http")
                 .host("www.zillow.com")
                 .addEncodedPathSegments("webservice/GetSearchResults.htm")
@@ -24,16 +24,16 @@ open class ZestimateService(val client : OkHttpClient, val env : EnvService) {
 
         println(url.toString())
 
-        val request : Request = Request.Builder()
+        val request: Request = Request.Builder()
                 .url(url)
                 .build()
 
 
-        val response : Response = client.newCall(request).execute()
+        val response: Response = client.newCall(request).execute()
 
         val responseString = response.body().string()
 
-        val factory : DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
+        val factory: DocumentBuilderFactory = DocumentBuilderFactory.newInstance()
         val builder = factory.newDocumentBuilder()
         val doc = builder.parse(responseString.byteInputStream())
 
@@ -41,12 +41,12 @@ open class ZestimateService(val client : OkHttpClient, val env : EnvService) {
         val xpath = xPathfactory.newXPath()
         val xpathStr = "//zestimate/amount/text()"
         val expr = xpath.compile(xpathStr)
-        val node : Any = expr.evaluate(doc, XPathConstants.NODE) ?: return null
+        val node: Any = expr.evaluate(doc, XPathConstants.NODE) ?: return null
 
-        val nodeStruct : Node = node as Node
-        val homeValue : Int? = nodeStruct.textContent.toInt()
+        val nodeStruct: Node = node as Node
+        val homeValue: Int? = nodeStruct.textContent.toInt()
 
-        if(homeValue == null) {
+        if (homeValue == null) {
             println("Zip code used: $zip")
             println("Address used: $address")
             println("Logging response body: $responseString")

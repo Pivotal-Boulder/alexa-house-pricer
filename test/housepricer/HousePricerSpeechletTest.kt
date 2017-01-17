@@ -1,18 +1,17 @@
-package session
+package housepricer
 
 import com.amazon.speech.slu.Intent
 import com.amazon.speech.slu.Slot
 import com.amazon.speech.speechlet.*
 import com.amazon.speech.ui.PlainTextOutputSpeech
 import com.amazon.speech.ui.SsmlOutputSpeech
-import io.damo.aspen.Test
-import org.assertj.core.api.Assertions.assertThat
 import com.nhaarman.mockito_kotlin.mock
+import com.nhaarman.mockito_kotlin.reset
 import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
-import com.nhaarman.mockito_kotlin.reset
-
-import java.util.Date
+import io.damo.aspen.Test
+import org.assertj.core.api.Assertions.assertThat
+import java.util.*
 
 class HousePricerSpeechletTest : Test({
     val mockZestimateService: ZestimateService = mock()

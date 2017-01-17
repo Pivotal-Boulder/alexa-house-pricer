@@ -1,21 +1,9 @@
-package session
-
-import org.apache.commons.lang3.StringUtils
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
+package housepricer
 
 import com.amazon.speech.slu.Intent
-import com.amazon.speech.slu.Slot
-import com.amazon.speech.speechlet.IntentRequest
-import com.amazon.speech.speechlet.LaunchRequest
-import com.amazon.speech.speechlet.Session
-import com.amazon.speech.speechlet.SessionEndedRequest
-import com.amazon.speech.speechlet.SessionStartedRequest
-import com.amazon.speech.speechlet.Speechlet
-import com.amazon.speech.speechlet.SpeechletException
-import com.amazon.speech.speechlet.SpeechletResponse
+import com.amazon.speech.speechlet.*
 import com.amazon.speech.ui.*
-import okhttp3.OkHttpClient
+import org.slf4j.LoggerFactory
 
 
 class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
@@ -36,16 +24,12 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
 
     @Throws(SpeechletException::class)
     override fun onIntent(request: IntentRequest, session: Session): SpeechletResponse {
-
-        // Get intent from the request object.
         val intent = request.intent
         val intentName = intent?.name
 
         log.info("onIntent requestId={}, sessionId={}, intentName={}", request.requestId,
                 session.sessionId, intentName)
 
-        // Note: If the session is started with an intent, no welcome message will be rendered;
-        // rather, the intent specific response will be returned.
         if ("MyZipCodeIsIntent" == intentName) {
             return setZipInSession(intent, session)
         } else if ("WelcomeIntent" == intentName) {
@@ -82,7 +66,7 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
 
     private fun setZipInSession(intent: Intent, session: Session): SpeechletResponse {
 
-        fun generalFailure() : SpeechletResponse {
+        fun generalFailure(): SpeechletResponse {
             val speechText = """<speak>
             I didn't understand that. You can tell me your zip code by saying, my zip code is <say-as interpret-as="digits">55434</say-as>
             </speak>"""
@@ -92,13 +76,11 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
             return getSpeechletResponse(speechText, repromptText, true)
         }
 
-        // Get the slots from the intent.
         val slots = intent.slots
         val zipCodeSlot = slots[ZIP_SLOT]
         val speechText: String
         val repromptText: String
 
-        // Check for favorite color and create output to user.
         if (zipCodeSlot != null && zipCodeSlot.value != null) {
             val zipCode = zipCodeSlot.value
             session.setAttribute(ZIP_KEY, zipCode)
@@ -119,17 +101,13 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
     }
 
     private fun setAddressInSession(intent: Intent, session: Session): SpeechletResponse {
-        // Get the slots from the intent.
         val slots = intent.slots
-
-        // Get the color slot from the list of slots.
         val addressSlot = slots[ADDRESS_SLOT]
         val speechText: String
 
         val zipAny: Any? = session.getAttribute(ZIP_KEY)
         val zip: String? = zipAny as String?
 
-        // Check for favorite color and create output to user.
         if (addressSlot != null && addressSlot.value != null) {
             val address = addressSlot.value
             session.setAttribute(ADDRESS_KEY, address)
@@ -175,27 +153,21 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
         card.title = "Session"
         card.content = speechText
 
-        // Create the plain text output.
-        val speech : OutputSpeech
-        if (speechText.contains("<speak>"))
-        {
+        val speech: OutputSpeech
+        if (speechText.contains("<speak>")) {
             speech = SsmlOutputSpeech()
             speech.ssml = speechText
-        }
-        else {
+        } else {
             speech = PlainTextOutputSpeech()
             speech.text = speechText
         }
 
         if (isAskResponse) {
-            // Create reprompt
-            val repromptSpeech : OutputSpeech
-            if (repromptText.contains("<speak>"))
-            {
+            val repromptSpeech: OutputSpeech
+            if (repromptText.contains("<speak>")) {
                 repromptSpeech = SsmlOutputSpeech()
                 repromptSpeech.ssml = repromptText
-            }
-            else {
+            } else {
                 repromptSpeech = PlainTextOutputSpeech()
                 repromptSpeech.text = repromptText
             }

@@ -8,7 +8,6 @@
     or in the "license" file accompanying this file. This file is distributed on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the License for the specific language governing permissions and limitations under the License.
  */
 
-import com.amazonaws.services.lambda.runtime.LambdaLogger;
 import okhttp3.OkHttpClient;
 import org.eclipse.jetty.server.Connector;
 import org.eclipse.jetty.server.HttpConfiguration;
@@ -21,13 +20,13 @@ import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.servlet.ServletHolder;
 import org.eclipse.jetty.util.ssl.SslContextFactory;
 
-import session.EnvService;
-import session.HousePricerSpeechlet;
+import housepricer.EnvService;
+import housepricer.HousePricerSpeechlet;
 
 import com.amazon.speech.Sdk;
 import com.amazon.speech.speechlet.Speechlet;
 import com.amazon.speech.speechlet.servlet.SpeechletServlet;
-import session.ZestimateService;
+import housepricer.ZestimateService;
 
 /**
  * Shared launcher for executing all sample skills within a single servlet container.
@@ -84,7 +83,7 @@ public final class Launcher {
         context.setContextPath("/");
         server.setHandler(context);
         EnvService envService = new EnvService();
-        context.addServlet(new ServletHolder(createServlet(new HousePricerSpeechlet(new ZestimateService(new OkHttpClient(), envService)))), "/src/session");
+        context.addServlet(new ServletHolder(createServlet(new HousePricerSpeechlet(new ZestimateService(new OkHttpClient(), envService)))), "/src/housepricer");
         server.start();
         server.join();
     }

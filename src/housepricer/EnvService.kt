@@ -1,6 +1,4 @@
-package session
-
-import com.amazon.speech.speechlet.SpeechletException
+package housepricer
 
 open class EnvService {
     open fun getZwsId() : String? {
