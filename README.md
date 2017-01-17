@@ -1,11 +1,11 @@
-== House Pricer ==
+## House Pricer
 
 A simple alexa skill that checks on the current price of your house. It
 uses the free zillow API in order to get a Zestimate for a given address
 and zip code.
 
 
-== Setup ==
+## Setup
 
 No database is needed for this. The only thing that is needed to run
 the project on AWS Lambda or another service is an environment variable.
