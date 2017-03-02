@@ -39,6 +39,8 @@ class HousePricerSpeechlet(val zestService: ZestimateService,
             return setAddressInSession(intent, session)
         } else if ("AMAZON.StopIntent" == intentName) {
             return stopResponse
+        } else if ("AMAZON.CancelIntent" == intentName) {
+            return stopResponse
         } else {
             println("Invalid intent: $intentName")
             throw SpeechletException("Invalid Intent")
