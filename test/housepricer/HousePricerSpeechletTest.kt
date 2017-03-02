@@ -4,6 +4,7 @@ import com.amazon.speech.slu.Intent
 import com.amazon.speech.slu.Slot
 import com.amazon.speech.speechlet.*
 import com.amazon.speech.ui.PlainTextOutputSpeech
+import com.amazon.speech.ui.SimpleCard
 import com.amazon.speech.ui.SsmlOutputSpeech
 import com.nhaarman.mockito_kotlin.mock
 import com.nhaarman.mockito_kotlin.reset
@@ -11,11 +12,13 @@ import com.nhaarman.mockito_kotlin.verify
 import com.nhaarman.mockito_kotlin.whenever
 import io.damo.aspen.Test
 import org.assertj.core.api.Assertions.assertThat
+import org.slf4j.helpers.NOPLogger
 import java.util.*
+
 
 class HousePricerSpeechletTest : Test({
     val mockZestimateService: ZestimateService = mock()
-    val housePricerSpeechlet: HousePricerSpeechlet = HousePricerSpeechlet(mockZestimateService)
+    val housePricerSpeechlet: HousePricerSpeechlet = HousePricerSpeechlet(mockZestimateService, NOPLogger.NOP_LOGGER)
     val session: Session = Session.builder()
             .withSessionId("session-id-1")
             .withUser(User
@@ -31,9 +34,15 @@ class HousePricerSpeechletTest : Test({
 
     describe("welcome") {
         test("launchSession") {
+            val cal = Calendar.getInstance()
+            cal.set(Calendar.YEAR, 1988)
+            cal.set(Calendar.MONTH, Calendar.JANUARY)
+            cal.set(Calendar.DAY_OF_MONTH, 1)
+            val timestamp = cal.time
+
             val speechletResponse: SpeechletResponse = housePricerSpeechlet.onLaunch(LaunchRequest.builder()
                     .withRequestId("request-id-1")
-                    .withTimestamp(Date(2017, 1, 1))
+                    .withTimestamp(timestamp)
                     .build(), session)
 
             val repromptText: SsmlOutputSpeech = speechletResponse.reprompt.outputSpeech as SsmlOutputSpeech
@@ -47,6 +56,9 @@ class HousePricerSpeechletTest : Test({
             assertThat(repromptText.ssml).contains("I need a few pieces of information")
             assertThat(repromptText.ssml).contains("my zip code is")
             assertThat(repromptText.ssml).contains("<say-as interpret-as=\"digits\">55434</say-as>")
+
+            val simpleCard: SimpleCard = speechletResponse.card as SimpleCard
+            assertThat(simpleCard.content).doesNotContain("<speak")
         }
 
         test("welcome intent") {
@@ -72,6 +84,25 @@ class HousePricerSpeechletTest : Test({
             assertThat(repromptText.ssml).contains("my zip code is")
             assertThat(repromptText.ssml).contains("<say-as interpret-as=\"digits\">55434</say-as>")
 
+            val simpleCard: SimpleCard = speechletResponse.card as SimpleCard
+            assertThat(simpleCard.content).doesNotContain("<speak")
+        }
+
+        test("stop and cancel commands") {
+            val intent: Intent = Intent.builder()
+                    .withName("AMAZON.StopIntent")
+                    .build()
+            val intentRequest: IntentRequest = IntentRequest.builder()
+                    .withRequestId("request-id-1")
+                    .withIntent(intent)
+                    .build()
+
+            val speechletResponse: SpeechletResponse = housePricerSpeechlet.onIntent(intentRequest, session)
+
+            val outputText: PlainTextOutputSpeech = speechletResponse.outputSpeech as PlainTextOutputSpeech
+
+            assertThat(speechletResponse.shouldEndSession).isTrue()
+            assertThat(outputText.text).contains("Goodbye!")
         }
     }
 
@@ -104,6 +135,9 @@ class HousePricerSpeechletTest : Test({
             assertThat(repromptText.text).doesNotContain("Thanks for that")
             assertThat(repromptText.text).contains("I need your address to get your house price")
             assertThat(repromptText.text).contains("my address is 101 Fairfield Drive")
+
+            val simpleCard: SimpleCard = speechletResponse.card as SimpleCard
+            assertThat(simpleCard.content).doesNotContain("<speak")
         }
 
         test("no zip code failure") {
@@ -147,6 +181,8 @@ class HousePricerSpeechletTest : Test({
             assertThat(repromptText.ssml).contains("my zip code is")
             assertThat(repromptText.ssml).contains("<say-as interpret-as=\"digits\">55434</say-as>")
 
+            val simpleCard: SimpleCard = speechletResponse.card as SimpleCard
+            assertThat(simpleCard.content).doesNotContain("<say-as")
         }
     }
 

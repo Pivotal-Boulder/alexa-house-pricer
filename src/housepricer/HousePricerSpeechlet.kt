@@ -3,16 +3,17 @@ package housepricer
 import com.amazon.speech.slu.Intent
 import com.amazon.speech.speechlet.*
 import com.amazon.speech.ui.*
+import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 
-class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
+class HousePricerSpeechlet(val zestService: ZestimateService,
+                           val log : Logger = LoggerFactory.getLogger(HousePricerSpeechlet::class.java)) : Speechlet {
 
     @Throws(SpeechletException::class)
     override fun onSessionStarted(request: SessionStartedRequest, session: Session) {
         log.info("onSessionStarted requestId={}, sessionId={}", request.requestId,
                 session.sessionId)
-        // any initialization logic goes here
     }
 
     @Throws(SpeechletException::class)
@@ -36,6 +37,8 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
             return welcomeResponse
         } else if ("MyAddressIsIntent" == intentName) {
             return setAddressInSession(intent, session)
+        } else if ("AMAZON.StopIntent" == intentName) {
+            return stopResponse
         } else {
             println("Invalid intent: $intentName")
             throw SpeechletException("Invalid Intent")
@@ -47,12 +50,10 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
     override fun onSessionEnded(request: SessionEndedRequest, session: Session) {
         log.info("onSessionEnded requestId={}, sessionId={}", request.requestId,
                 session.sessionId)
-        // any cleanup logic goes here
     }
 
 
-    private // Create the welcome message.
-    val welcomeResponse: SpeechletResponse
+    private val welcomeResponse: SpeechletResponse
         get() {
             val speechText = """<speak>
                 Welcome to House Pricer. Please tell me your house zip code by saying, my zip code is <say-as interpret-as="digits">55434</say-as>
@@ -62,6 +63,17 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
                             </speak>"""
 
             return getSpeechletResponse(speechText, repromptText, true)
+        }
+
+    private val stopResponse: SpeechletResponse
+        get() {
+            val speechText = "Goodbye!"
+            val speech = PlainTextOutputSpeech()
+            speech.text = speechText
+
+            val endSessionTell = SpeechletResponse.newTellResponse(speech)
+            endSessionTell.shouldEndSession = true
+            return endSessionTell
         }
 
     private fun setZipInSession(intent: Intent, session: Session): SpeechletResponse {
@@ -150,8 +162,8 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
                                      isAskResponse: Boolean): SpeechletResponse {
         // Create the Simple card content.
         val card = SimpleCard()
-        card.title = "Session"
-        card.content = speechText
+        card.title = "House Pricer"
+        card.content = speechText.replace(Regex("<[^>]*>"), "")
 
         val speech: OutputSpeech
         if (speechText.contains("<speak>")) {
@@ -174,6 +186,7 @@ class HousePricerSpeechlet(val zestService: ZestimateService) : Speechlet {
 
             val reprompt = Reprompt()
             reprompt.outputSpeech = repromptSpeech
+
 
             return SpeechletResponse.newAskResponse(speech, reprompt, card)
 

@@ -21,6 +21,9 @@
     {
       "intent": "WelcomeIntent",
       "slots": []
+    },
+    {
+      "intent": "AMAZON.StopIntent"
     }
   ]
 }
